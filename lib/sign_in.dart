@@ -160,10 +160,23 @@ TextEditingController passController=TextEditingController();
                              password: passController.text);
                              if(FirebaseAuth.instance.currentUser!.emailVerified)
                              {
+                              AwesomeDialog(
+                                // ignore: use_build_context_synchronously
+                                context: context,
+                               dialogType: DialogType.success,
+                               animType: AnimType.topSlide,
+                                title: 'Success',
+                               desc: 'Login successful.',
+                              //  btnCancelOnPress: () {},
+                                btnOkOnPress: () {
+                                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>First()));
+
+                                },
+                               ).show();
                                
 
                               // ignore: use_build_context_synchronously
-                              Navigator.of(context).push(MaterialPageRoute(builder: (context)=>First()));
+                             
 
                              }else
                              {
