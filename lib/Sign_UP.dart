@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/sign_in.dart';
@@ -237,9 +238,22 @@ class _Sign_UpState extends State<Sign_Up> {
                              final credential= await FirebaseAuth.instance.createUserWithEmailAndPassword(
                               email: emailController.text.trim(), 
                               password: passController.text);
-                               FirebaseAuth.instance.currentUser!.sendEmailVerification();
+                              await FirebaseAuth.instance.currentUser!.sendEmailVerification();
+                              AwesomeDialog(
+                                // ignore: use_build_context_synchronously
+                                context: context,
+                               dialogType: DialogType.infoReverse,
+                               animType: AnimType.topSlide,
+                                title: 'info',
+                               desc: 'Please activate your account using the link sent to your email.',
+                               // btnCancelOnPress: () {},
+                                btnOkOnPress: () {
+                                   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>Sign_in()));
+                                },
+                               ).show();
+
                              
-                                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>Sign_in()));
+                               
 
                             }on FirebaseAuthException catch(e)
                             {

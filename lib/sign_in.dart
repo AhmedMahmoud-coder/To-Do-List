@@ -58,42 +58,43 @@ TextEditingController passController=TextEditingController();
                   Form(key: formstate
                     ,child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 30,horizontal: 50),
-                      child: TextFormField(
-                        
-                        controller: emailController,
-                        
-                        validator: (value) {
-                          if(value!.isEmpty)
-                          {
-                            return "Please Enter Your E-mail";
-                          }
-                          if(!value.endsWith("@gmail.com"))
-                          {
-                            return "E-mail@gmail.com";
-                          }
-                          return null;
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            
+                            controller: emailController,
+                            
+                            validator: (value) {
+                              if(value!.isEmpty)
+                              {
+                                return "Please Enter Your E-mail";
+                              }
+                              if(!value.endsWith("@gmail.com"))
+                              {
+                                return "E-mail@gmail.com";
+                              }
+                              return null;
+                              
+                            },
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(Icons.email),
+                              prefixIconColor: Colors.grey,
                           
-                        },
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.email),
-                          prefixIconColor: Colors.grey,
+                              filled: true,
+                              fillColor: Color(0xFFD9D9D9),
+                              hintText: " Enter your email",
+                              hintStyle: TextStyle(fontSize: 19,color: Color(0xFF000000)),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(40),
+                              borderSide: BorderSide.none
+                              )
+                            ),
+                          
+                          ),
+                          Padding(padding: EdgeInsets.symmetric(vertical: 20,horizontal: 50)),
 
-                          filled: true,
-                          fillColor: Color(0xFFD9D9D9),
-                          hintText: " Enter your email",
-                          hintStyle: TextStyle(fontSize: 19,color: Color(0xFF000000)),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(40),
-                          borderSide: BorderSide.none
-                          )
-                        ),
-                      
-                      ),
-                    )),
+                       
 
-                    Padding(
-                      
-                      padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 50),
-                      child: TextFormField(
+                     TextFormField(
                         
                         controller: passController,
                         obscureText: pass,
@@ -133,12 +134,99 @@ TextEditingController passController=TextEditingController();
                         ),
                       
                       ),
-                    ),
+                    
                     SizedBox(height: 10,),
-                    TextButton(onPressed: ()async{
-                      await FirebaseAuth.instance.sendPasswordResetEmail(email: emailController.text.trim());
+                    TextButton(onPressed: ()
+                      async{
+                        if(!emailController.text.trim().isEmpty)
+                        {
+                          try{
+                            await FirebaseAuth.instance.sendPasswordResetEmail(email: emailController.text.trim());
+                            if(!mounted)return;
+                            AwesomeDialog(
+                                // ignore: use_build_context_synchronously
+                                context: context,
+                               dialogType: DialogType.infoReverse,
+                               animType: AnimType.topSlide,
+                                title: 'Info',
+                               desc: 'To change your password, please go to your email.',
+                                btnCancelOnPress: () {
+                                  return null;
+                                },
+                                btnOkOnPress: () {
+                                },
+                               ).show();
 
 
+                          }on FirebaseAuthException catch(e)
+                          {
+                            if(e.code=="user-not-found")
+                            {
+                               AwesomeDialog(
+                                // ignore: use_build_context_synchronously
+                                context: context,
+                               dialogType: DialogType.error,
+                               animType: AnimType.topSlide,
+                                title: 'Error',
+                               desc: 'No user found for this email. Please enter a valid registered email.',
+                                
+                                btnOkOnPress: () {
+                                },
+                                btnOkColor: Color.fromARGB(255, 225, 13, 13)
+                               ).show();
+
+                            }
+                            else if(e.code=="invalid-email")
+                            {
+                               AwesomeDialog(
+                                // ignore: use_build_context_synchronously
+                                context: context,
+                               dialogType: DialogType.warning,
+                               animType: AnimType.topSlide,
+                                title: 'Warning',
+                               desc: 'The email address is badly formatted.',
+                                
+                                btnOkOnPress: () {
+                                },
+                               ).show();
+
+
+                            }
+                            else
+                            {
+                               AwesomeDialog(
+                                // ignore: use_build_context_synchronously
+                                context: context,
+                               dialogType: DialogType.error,
+                               animType: AnimType.topSlide,
+                                title: 'Error',
+                               desc:e.message?? 'An error occurred. Please try again.',
+                                
+                                btnOkOnPress: () {
+                                },
+                                btnOkColor: Color.fromARGB(255, 225, 13, 13)
+                               ).show();
+
+                            }
+
+                          }
+                           
+
+                        }
+                        else{
+                           AwesomeDialog(
+                                // ignore: use_build_context_synchronously
+                                context: context,
+                               dialogType: DialogType.error,
+                               animType: AnimType.topSlide,
+                                title: 'Error',
+                               desc: 'Please Enter your E-mail first!',
+                                //btnCancelOnPress: () {},
+                                btnOkOnPress: () {},
+                                btnOkColor: Color.fromARGB(255, 252, 6, 6)
+                               ).show();
+                        }
+                     
                     }, child: Text("  Forget password  ",style: TextStyle(color: Color(0xFF02BCB4),
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -216,10 +304,10 @@ TextEditingController passController=TextEditingController();
                                 context: context,
                                dialogType: DialogType.error,
                                animType: AnimType.topSlide,
-                                title: 'Warning',
+                                title: 'Error',
                                desc: 'Incorrect email or password.',
-                                btnCancelOnPress: () {},
                                 btnOkOnPress: () {},
+                                btnOkColor: Color.fromARGB(255, 255, 3, 3)
                                ).show();
                             }
                             /* else if (e.code == 'wrong-password') {
@@ -238,30 +326,37 @@ TextEditingController passController=TextEditingController();
                       fontWeight: FontWeight.bold,))),
 
                       SizedBox(height: 10,),
-                      Row(
-                       mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                           Text("  Don’t have an account ?",
-                          style: TextStyle(
-                            color: Color(0xFF000000),
-                            fontSize: 21,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          ),
-                          TextButton(onPressed: (){
-                           Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>Sign_Up()));
-
-                          }, child: Text(" sign up",
-                          style: TextStyle(
-                            color:Color(0xFF02BCB4),
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold 
-                          ),
-                          ))
-
-                        ],
+                      
+                      FittedBox(
+                        child: Row(
+                         mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                             Text("  Don’t have an account ?",
+                            style: TextStyle(
+                              color: Color(0xFF000000),
+                              fontSize: 23,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            ),
+                            TextButton(onPressed: (){
+                             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>Sign_Up()));
+                        
+                            }, child: Text(" sign up",
+                            style: TextStyle(
+                              color:Color(0xFF02BCB4),
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold 
+                            ),
+                            ))
+                        
+                          ],
+                        ),
                       ),
-                      SizedBox(height: 10,)
+                      SizedBox(height: 10,),
+                       ],
+                      ),
+                    )
+                  ),
 
 
                 ],
